@@ -1,5 +1,8 @@
 # jsforce_downloader 
-## by Divya van Mahajan
+## by Joel Basson
+
+This is a forked version of the the jsforce_downloader by Divya van Mahajan. Many thanks to him for doing most of the work.
+This fork contains change to only have the labels of the roports, rather thank values and labels. Aditionally, it removes the LastUpdated column that gets addded to all reports
 
 Extract report data from Salesforce into a comma separated file. This package includes 4 components that can be used independently.
 - nodejs library to download Salesforce reports that have a date filter.

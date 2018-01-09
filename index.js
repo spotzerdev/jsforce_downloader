@@ -399,19 +399,23 @@ function prepareCSV(reportID) {
     //stringifier.pipe(fs.createWriteStream('data/outputDateRange.csv'));
     var report = conn.analytics.report(reportID);
     return report.describe().then(function (result) {
-        var columns = ["lastUpdated"];
+        var columns = [];//["lastUpdated"]; Don't add columns that aren't in the report
         module.exports.reportDescribe = result;
         module.exports.reportMetadata = result.reportMetadata;
         module.exports.reportName = result.reportMetadata.name;
         module.exports.sqlTypes = ["datetime"];
         console.log("Report name: " + module.exports.reportName);
+        
+        OutputFile = module.exports.downloadreport_file(module.exports.reportName, StartDate.format('YYYY-MM-DD'), EndDate.format('YYYY-MM-DD'));
+
         result.reportMetadata.detailColumns.map(function (cname) {
             var sqlType = convertSOQLTypeToSQL(result.reportExtendedMetadata.detailColumnInfo[cname].dataType, "varchar(255)");
             module.exports.sqlTypes.push(sqlType);
 
-            cname = cname.replace(/\./g, '_');
-            columns.push(cname + "_label");
-            columns.push(cname + "_value");
+            columns.push(result.reportExtendedMetadata.detailColumnInfo[cname].label)
+            // cname = cname.replace(/\./g, '_');
+            // columns.push(cname + "_label");
+            // columns.push(cname + "_value");
         });
         stringifier.write(columns);
         return stringifier;
@@ -570,7 +574,7 @@ function writeResult(stringifier, results) {
             //console.log(JSON.stringify(rowval));
             //console.log('Writeresult:'+k);
             var datacells = rows[k]["dataCells"];
-            var rowout = [lastUpdate.format('YYYY-MM-DD[T]HH:mm:ss[Z]')]; // Update date/time - is the same as the start of the download.
+            var rowout = []; //[lastUpdate.format('YYYY-MM-DD[T]HH:mm:ss[Z]')]; // Update date/time - is the same as the start of the download. //Don't add columns that aren't in the report
             var k1;
             for (k1 = 0; k1 < datacells.length; k1++) {
                 var sqltype = module.exports.sqlTypes[k1 + 1];
@@ -600,10 +604,10 @@ function writeResult(stringifier, results) {
                         value = "'" + value.replace(regex_quote, "-") + "'";
                     }
                     rowout.push(label);
-                    rowout.push(value);
+                    //rowout.push(value); //we don't want the value, only the label
                 } else {
                     rowout.push(label);
-                    rowout.push(value);
+                    //rowout.push(value); //we don't want the value, only the label
                 }
             }
             //console.log(JSON.stringify(rowout));

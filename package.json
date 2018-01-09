@@ -1,6 +1,6 @@
 {
   "name": "jsforce_downloader",
-  "version": "0.5.10",
+  "version": "0.5.11",
   "description": "Extract report data and report metadata from Salesforce. Download more than 2000 rows, asynchronously. Report is downloaded a day at a time with a standard date filter. It supports Tabular, Summary and Matrix reports. It can run in AWS Lambda and has built in support for sending the report data directly to S3. GZIP compression is supported for the output files.",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git//github.com/divyavanmahajan/jsforce_downloader.git"
+    "url": "git//github.com/spotzerdev/jsforce_downloader.git"
   },
   "keywords": [
     "Salesforce",
@@ -18,7 +18,7 @@
   ],
   "author": "Divya Mahajan <dvm@vanmahajan.com> (http://vanmahajan.github.io)",
   "bugs": {
-    "url": "https://github.com/divyavanmahajan/jsforce_downloader/issues"
+    "url": "https://github.com/spotzerdev/jsforce_downloader/issues"
   },
   "bin": {
     "jsforce_downloader": "./bin/jsforce_downloader",
@@ -30,7 +30,7 @@
     "jsforce": "*",
     "csv-stringify": "*",
     "moment": "*",
-    "moment-range": "*"
+    "moment-range": "^2.2.0"
   },
   "devDependencies": {
     "chai": "^3.4.1",
