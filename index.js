@@ -601,8 +601,10 @@ function writeResult(stringifier, results) {
                         label = label.replace(regex_newline,"--").substring(0,len);
                         //value = value.replace(regex_newline,"--").substring(0,len);
                         //label = "'" + label.replace(regex_quote, "-") + "'";
-                        label = label.replace(regex_quote, "-");
+                        label = label.replace(regex_quote, "-"); //Dont add quotes that aren't specified in the report
                         //value = "'" + value.replace(regex_quote, "-") + "'";
+                        if (label == '-')
+                            label = '';
                     }
                     rowout.push(label);
                     //rowout.push(value); //we don't want the value, only the label
