@@ -599,9 +599,10 @@ function writeResult(stringifier, results) {
                     // Add quotes to the string
                     if (value !== null) {
                         label = label.replace(regex_newline,"--").substring(0,len);
-                        value = value.replace(regex_newline,"--").substring(0,len);
-                        label = "'" + label.replace(regex_quote, "-") + "'";
-                        value = "'" + value.replace(regex_quote, "-") + "'";
+                        //value = value.replace(regex_newline,"--").substring(0,len);
+                        //label = "'" + label.replace(regex_quote, "-") + "'";
+                        label = label.replace(regex_quote, "-");
+                        //value = "'" + value.replace(regex_quote, "-") + "'";
                     }
                     rowout.push(label);
                     //rowout.push(value); //we don't want the value, only the label
