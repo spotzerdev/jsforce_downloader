@@ -379,7 +379,7 @@ function prepareCSV(reportID) {
     var row;
     //console.log('Prepare CSV');
     // Write out the data
-    var stringifier = stringify({ delimiter: ',' });
+    var stringifier = stringify({ delimiter: ',', quoted : true, quotedEmpty : true });
 
     stringifier.on('readable', function () {
         while (row = stringifier.read()) {
@@ -583,7 +583,15 @@ function writeResult(stringifier, results) {
                 //label = label.replace(regex_quote,"-");
                 //value = value.replace(regex_quote,"-");
                 
-                if (sqltype.indexOf("varchar") > -1) {
+                if (sqltype == 'datetime'){
+                    if (value !== null) {
+                        label = moment(label, "DD-MM-YYYY").format("DD/MM/YYYY");
+                    }
+                    if (label == "-"){
+                        label = "";
+                    }
+                    rowout.push(label);
+                } else if (sqltype.indexOf("varchar") > -1) {
                     // Remove single quotes, newlines and wrap strings with single quotes.
                     // Truncate the string to the max length defined in the data type
                     
@@ -603,12 +611,16 @@ function writeResult(stringifier, results) {
                         //label = "'" + label.replace(regex_quote, "-") + "'";
                         label = label.replace(regex_quote, "-"); //Dont add quotes that aren't specified in the report
                         //value = "'" + value.replace(regex_quote, "-") + "'";
-                        if (label == '-')
-                            label = '';
+                    }
+                    if (label == "-"){
+                        label = "";
                     }
                     rowout.push(label);
                     //rowout.push(value); //we don't want the value, only the label
                 } else {
+                    if (label == "-"){
+                        label = "";
+                    }
                     rowout.push(label);
                     //rowout.push(value); //we don't want the value, only the label
                 }
