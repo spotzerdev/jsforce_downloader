@@ -19,6 +19,7 @@ var indexfieldOffset = 0;
 var StartDate = moment();
 var EndDate = moment();
 var lastUpdate = moment().utc();
+var interval = "days";
 // Internal global state
 var OutputFile = 'ReportOutput.csv';
 var i = 1;
@@ -196,7 +197,7 @@ module.exports.downloadreport_file = function (_reportID, _startDate, _endDate) 
  * @param {String} _password - password with security token.
  */
 
-module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffset, _startDate, _endDate) {
+module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffset, _startDate, _endDate, _interval) {
     conn = new jsforce.Connection(config.SFOptions);
 
     reportID = _reportID;
@@ -205,6 +206,7 @@ module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffs
     StartDate = moment(_startDate, "YYYY-MM-DD");
     EndDate = moment(_endDate, "YYYY-MM-DD");
     lastUpdate = moment().utc();
+    interval = _interval || interval;
 
     async_report_requests = 0;
     async_report_success = 0;
@@ -243,7 +245,7 @@ module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffs
             console.log("username: " + res.username + "(" + res.display_name + ")");
 
         }).then(function () {
-            return getReportForDateRange(StartDate, EndDate, "days");
+            return getReportForDateRange(StartDate, EndDate, interval);
         }, writeOutErrorFn('login')).then(function () {
             module.exports.reportRows = global_written_count;
             console.log("=============================");
