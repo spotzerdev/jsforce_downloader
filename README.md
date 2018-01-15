@@ -228,15 +228,14 @@ Before you can use the report download function, you must initialize the library
  * @param {String} _indexfieldOffset - Column that should be displayed while running the report (starts at 0). By default the first column is shown.
  * @param {Date} _startDate - Starting date in the format YYYY-MM-DD.
  * @param {Date} _endDate - Ending date in the format YYYY-MM-DD.
- * @param {String} _user - username.
- * @param {String} _password - password with security token.
+ * @param {Object} _options - options inlcude 'interval', 'delimiter', 'useQuotes', 'quote, 'useQuotesForEmpty', 'useQuotesForEmpty', 'dateFormat'
  */
  ```
  
  Example:
  
 ```javascript
-    jsforce_downloader.downloadreport(report, "Datefield", options.indexfield, options.startdate, options.enddate).then(
+    jsforce_downloader.downloadreport(report, "Datefield", options.indexfield, options.startdate, options.enddate, { interval : 'weeks', useQuotes : true}).then(
         function(res) {
             console.log(jsforce_downloader.s3outputkey);
             if (typeof callback == "function") {

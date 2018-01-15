@@ -23,8 +23,8 @@ var interval = "days";
 var delimiter = ",";
 var quote = '"';
 var dateFormat = 'DD/MM/YYYY';
-var useQuotes = true;
-var useQuotesForEmpty = true;
+var useQuotes = false;
+var useQuotesForEmpty = false;
 
 // Internal global state
 var OutputFile = 'ReportOutput.csv';
