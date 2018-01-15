@@ -218,9 +218,9 @@ module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffs
         useQuotes = _options.useQuotes || useQuotes;
         quote = _options.quote || quote;
         useQuotesForEmpty = _options.useQuotesForEmpty || useQuotesForEmpty;
-        dateFormat = _options.dateFormat | dateFormat;
+        dateFormat = _options.dateFormat || dateFormat;
     }
-    
+
     async_report_requests = 0;
     async_report_success = 0;
     global_record_count = 0;
