@@ -220,9 +220,6 @@ module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffs
         useQuotesForEmpty = _options.useQuotesForEmpty || useQuotesForEmpty;
         dateFormat = _options.dateFormat | dateFormat;
     }
-
-    interval = _interval || interval;
-    
     
     async_report_requests = 0;
     async_report_success = 0;
