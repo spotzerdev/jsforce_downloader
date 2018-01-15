@@ -20,6 +20,12 @@ var StartDate = moment();
 var EndDate = moment();
 var lastUpdate = moment().utc();
 var interval = "days";
+var delimiter = ",";
+var quote = '"';
+var dateFormat = 'DD/MM/YYYY';
+var useQuotes = true;
+var useQuotesForEmpty = true;
+
 // Internal global state
 var OutputFile = 'ReportOutput.csv';
 var i = 1;
@@ -193,11 +199,10 @@ module.exports.downloadreport_file = function (_reportID, _startDate, _endDate) 
  * @param {String} _indexfieldOffset - Column that should be displayed while running the report (starts at 0). By default the first column is shown.
  * @param {Date} _startDate - Starting date in the format YYYY-MM-DD.
  * @param {Date} _endDate - Ending date in the format YYYY-MM-DD.
- * @param {String} _user - username.
- * @param {String} _password - password with security token.
+ * @param {Object} _options - options inlcude 'interval', 'delimiter', 'useQuotes', 'quote, 'useQuotesForEmpty', 'useQuotesForEmpty', 'dateFormat'
  */
 
-module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffset, _startDate, _endDate, _interval) {
+module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffset, _startDate, _endDate, _options) {
     conn = new jsforce.Connection(config.SFOptions);
 
     reportID = _reportID;
@@ -206,8 +211,19 @@ module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffs
     StartDate = moment(_startDate, "YYYY-MM-DD");
     EndDate = moment(_endDate, "YYYY-MM-DD");
     lastUpdate = moment().utc();
-    interval = _interval || interval;
 
+    if (_options){
+        interval = _options.interval || interval;
+        delimiter = _options.delimiter || delimiter;
+        useQuotes = _options.useQuotes || useQuotes;
+        quote = _options.quote || quote;
+        useQuotesForEmpty = _options.useQuotesForEmpty || useQuotesForEmpty;
+        dateFormat = _options.dateFormat | dateFormat;
+    }
+
+    interval = _interval || interval;
+    
+    
     async_report_requests = 0;
     async_report_success = 0;
     global_record_count = 0;
@@ -381,7 +397,7 @@ function prepareCSV(reportID) {
     var row;
     //console.log('Prepare CSV');
     // Write out the data
-    var stringifier = stringify({ delimiter: ',', quoted : true, quotedEmpty : true });
+    var stringifier = stringify({ delimiter: delimiter, quote : quote, quoted : useQuotes, quotedEmpty : useQuotesForEmpty });
 
     stringifier.on('readable', function () {
         while (row = stringifier.read()) {
@@ -587,7 +603,7 @@ function writeResult(stringifier, results) {
                 
                 if (sqltype == 'datetime'){
                     if (value !== null) {
-                        label = moment(label, "DD-MM-YYYY").format("DD/MM/YYYY");
+                        label = moment(label, "DD-MM-YYYY").format(dateFormat);
                     }
                     if (label == "-"){
                         label = "";
