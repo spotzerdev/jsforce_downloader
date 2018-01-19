@@ -23,6 +23,7 @@ var interval = "days";
 var delimiter = ",";
 var quote = '"';
 var dateFormat = 'DD/MM/YYYY';
+var dateTimeFormat = 'DD/MM/YYYY hh:mm';
 var useQuotes = false;
 var useQuotesForEmpty = false;
 
@@ -219,6 +220,7 @@ module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffs
         quote = _options.quote || quote;
         useQuotesForEmpty = _options.useQuotesForEmpty || useQuotesForEmpty;
         dateFormat = _options.dateFormat || dateFormat;
+        dateTimeFormat = _options.dateTimeFormat || dateTimeFormat;
     }
 
     async_report_requests = 0;
@@ -600,7 +602,11 @@ function writeResult(stringifier, results) {
                 
                 if (sqltype == 'datetime'){
                     if (value !== null) {
-                        label = moment(label, "DD-MM-YYYY").format(dateFormat);
+                        if (label.trim().split(" ").length > 1){
+                            label = moment(label, "DD-MM-YYYY hh:mm").format(dateTimeFormat); //is datetime
+                        } else {
+                            label = moment(label, "DD-MM-YYYY").format(dateFormat); //is date
+                        }
                     }
                     if (label == "-"){
                         label = "";
