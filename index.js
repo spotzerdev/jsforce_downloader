@@ -36,6 +36,8 @@ var async_report_success = 0;
 var global_record_count = 0;
 var global_written_count = 0;
 
+var intervals = ["days", "weeks", "months"];
+
 var conn = new jsforce.Connection();
 var config = {
     MAX_CONCURRENT: 30,
@@ -312,14 +314,14 @@ function getReportForDateRange(startdate, enddate, interval) {
             if (concurrentPromises[j] == undefined) {
                 console.log(t + ":Start Range: (" + st.format('YYYY-MM-DD') + " to " + end.format('YYYY-MM-DD') + ")");
                 concurrentPromises[j] = startAsyncReport(start, end).then(
-                    processAsyncReportInstanceFn(instances, t, st, end, stringifier)
+                    processAsyncReportInstanceFn(instances, t, st, end, stringifier, interval)
                     , writeOutErrorFn(t + ":Error starting report for range: " + start.format('YYYY-MM-DD') + " - " + end.format('YYYY-MM-DD') + ":")
                 );
             } else {
                 concurrentPromises[j] = concurrentPromises[j].then(function () {
                     console.log(t + ":Chain Range: " + start.format() + " - " + end.format());
                     var promise2 = startAsyncReport(start, end).then(
-                        processAsyncReportInstanceFn(instances, t, st, end, stringifier)
+                        processAsyncReportInstanceFn(instances, t, st, end, stringifier, interval)
                         , writeOutErrorFn(t + ":Error starting report for range: " + start.format() + " - " + end.format() + ":"));
                     return promise2;
                 }, writeOutErrorFn(t + ":Error running report for range: " + start.format() + " - " + end.format() + ":"));
@@ -470,7 +472,7 @@ function startAsyncReport(startdate, enddate) {
 //
 // Create a callbackfunction for processing after an async report is submitted.
 //
-function processAsyncReportInstanceFn(instances, t, st, end, stringifier) {
+function processAsyncReportInstanceFn(instances, t, st, end, stringifier, interval) {
     return function (instance) {
         async_report_success++;
         instances.push(instance); // Can be removed for large report data sets
@@ -479,6 +481,11 @@ function processAsyncReportInstanceFn(instances, t, st, end, stringifier) {
         var promise0 = delay(config.WAIT_BETWEEN_REQUESTS).then(function () {
             //var promise1=reportinstance.retrieve().then(function(results) {
             var promise1 = waitForInstance(reportinstance, config.WAIT_BETWEEN_REQUESTS).then(function (results) {
+                if (results.allData == false) {
+                    console.error(t + ":Incomplete results for range:" + st.format() + " - " + end.format());
+                    console.log("Split into smaller chunks")
+                    return getReportForDateRange(st, end, intervals[Math.max(intervals.indexOf(interval) -1), 0])
+                }
                 var message = "";
                 var rSection = results.factMap[config.REPORTSECTION];
                 if (typeof rSection === "undefined" || rSection.rows.length == 0) {
@@ -524,9 +531,6 @@ function processAsyncReportInstanceFn(instances, t, st, end, stringifier) {
                 console.log("Last row : (" + label + " " + val + ")");
                 //console.log("Package size:" + rSection.rows.length);
                 global_record_count = global_record_count + rSection.rows.length;
-                if (results.allData == false) {
-                    console.error(t + ":Incomplete results for range:" + st.format() + " - " + end.format());
-                }
             }, writeOutErrorFn('Error reading instance ' + instance.id + " (" + st.format() + " - " + end.format() + ")"));
             return promise1;
         });
