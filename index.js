@@ -40,6 +40,7 @@ var intervals = ["days", "weeks", "months"];
 var iterations = 0;
 var iterationsComplete = 0;
 var _stringifier = null;
+var mainCallback = null;
 
 var conn = new jsforce.Connection();
 var config = {
@@ -208,7 +209,7 @@ module.exports.downloadreport_file = function (_reportID, _startDate, _endDate) 
  * @param {Object} _options - options inlcude 'interval', 'delimiter', 'useQuotes', 'quote, 'useQuotesForEmpty', 'useQuotesForEmpty', 'dateFormat'
  */
 
-module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffset, _startDate, _endDate, _options) {
+module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffset, _startDate, _endDate, _options, callback) {
     conn = new jsforce.Connection(config.SFOptions);
 
     reportID = _reportID;
@@ -227,6 +228,8 @@ module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffs
         dateFormat = _options.dateFormat || dateFormat;
         dateTimeFormat = _options.dateTimeFormat || dateTimeFormat;
     }
+
+    mainCallback = callback;
 
     async_report_requests = 0;
     async_report_success = 0;
@@ -266,19 +269,7 @@ module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffs
 
         }).then(function () {
             return getReportForDateRange(StartDate, EndDate, interval);
-        }, writeOutErrorFn('login')).then(function () {
-            module.exports.reportRows = global_written_count;
-            console.log("=============================");
-            console.log("Report        :" + module.exports.reportName + " (" + reportID + ")");
-            console.log("Date range    :" + StartDate.format('YYYY-MM-DD') + " to " + EndDate.format('YYYY-MM-DD'));
-            console.log("Output to     :" + OutputFile);
-            console.log('Record count  :' + global_written_count);
-            console.log('Async requests:' + async_report_requests + ' - (succeeded:' + async_report_success + ',failed:' + (async_report_requests - async_report_success) + ').');
-            return module.exports.result;
-        }, writeOutErrorFn('jsforce_report.downloadreport'))
-        .catch(function (err) {
-            console.error(err);
-        });
+        }, writeOutErrorFn('login'))
 }
 
 
@@ -286,7 +277,16 @@ function complete(stringifier){
     iterationsComplete++;
     if (iterationsComplete == iterations){
         stringifier.end();
-        return onFinishWriteFile();
+        onFinishWriteFile().then(function(){
+            module.exports.reportRows = global_written_count;
+            console.log("=============================");
+            console.log("Report        :" + module.exports.reportName + " (" + reportID + ")");
+            console.log("Date range    :" + StartDate.format('YYYY-MM-DD') + " to " + EndDate.format('YYYY-MM-DD'));
+            console.log("Output to     :" + OutputFile);
+            console.log('Record count  :' + global_written_count);
+            console.log('Async requests:' + async_report_requests + ' - (succeeded:' + async_report_success + ',failed:' + (async_report_requests - async_report_success) + ').');
+            return mainCallback(null, module.exports.result);
+        });
     }
 }
 
@@ -302,7 +302,7 @@ function getReportForDateRange(startdate, enddate, interval) {
     iterations++;
     var range1 = moment.range(startdate, enddate);
     var promisegroups = new Array(config.MAX_CONCURRENT);
-
+    var promise = null;
     if (interval == undefined) {
         interval = "days";
     }
@@ -311,10 +311,11 @@ function getReportForDateRange(startdate, enddate, interval) {
     if (_stringifier != null){
         doWork(_stringifier)
     } else {
-        prepareCSV(reportID, data).then(function (stringifier) {
+        promise = prepareCSV(reportID, data).then(function (stringifier) {
             _stringifier = stringifier;
             doWork(_stringifier)
         }, writeOutErrorFn("PrepareCSV error"));
+        return promise;
     }
 
 
