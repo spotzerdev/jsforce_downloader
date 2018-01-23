@@ -37,6 +37,9 @@ var global_record_count = 0;
 var global_written_count = 0;
 
 var intervals = ["days", "weeks", "months"];
+var iterations = 0;
+var iterationsComplete = 0;
+var _stringifier = null;
 
 var conn = new jsforce.Connection();
 var config = {
@@ -279,8 +282,13 @@ module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffs
 }
 
 
-
-
+function complete(stringifier){
+    iterationsComplete++;
+    if (iterationsComplete == iterations){
+        stringifier.end();
+        return onFinishWriteFile();
+    }
+}
 
 
 function writeOutErrorFn(message) {
@@ -291,6 +299,7 @@ function writeOutErrorFn(message) {
 
 
 function getReportForDateRange(startdate, enddate, interval) {
+    iterations++;
     var range1 = moment.range(startdate, enddate);
     var promisegroups = new Array(config.MAX_CONCURRENT);
 
@@ -298,8 +307,18 @@ function getReportForDateRange(startdate, enddate, interval) {
         interval = "days";
     }
     var data = '';
-    //console.log('GenUtilization');
-    var promise = prepareCSV(reportID, data).then(function (stringifier) {
+
+    if (_stringifier != null){
+        doWork(_stringifier)
+    } else {
+        prepareCSV(reportID, data).then(function (stringifier) {
+            _stringifier = stringifier;
+            doWork(_stringifier)
+        }, writeOutErrorFn("PrepareCSV error"));
+    }
+
+
+    function doWork(stringifier){
         var getInstancePromises = [];
         var concurrentPromises = new Array(config.MAX_CONCURRENT);
         var instances = [];
@@ -330,11 +349,9 @@ function getReportForDateRange(startdate, enddate, interval) {
             async_report_requests++;
         });
         return Promise.all(concurrentPromises).then(function () {
-            stringifier.end();
-            return onFinishWriteFile();
+            complete(stringifier);
         }, writeOutErrorFn("PromiseAll error"));
-    }, writeOutErrorFn("PrepareCSV error"));
-    return promise;
+    }
 }
 
 function onFinishWriteFile() {
