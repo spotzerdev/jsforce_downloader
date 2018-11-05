@@ -47,7 +47,7 @@ var config = {
     MAX_CONCURRENT: 20,
     // 30 parallel async report requests
 
-    WAIT_BETWEEN_REQUESTS: 1000,
+    WAIT_BETWEEN_REQUESTS: 2500,
     // 1000 milliseconds
 
     REPORTSECTION: "T!T",
