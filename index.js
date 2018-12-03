@@ -44,10 +44,10 @@ var mainCallback = null;
 
 var conn = new jsforce.Connection();
 var config = {
-    MAX_CONCURRENT: 20,
+    MAX_CONCURRENT: 10,
     // 30 parallel async report requests
 
-    WAIT_BETWEEN_REQUESTS: 2500,
+    WAIT_BETWEEN_REQUESTS: 5000,
     // 1000 milliseconds
 
     REPORTSECTION: "T!T",
