@@ -26,6 +26,7 @@ var dateFormat = 'DD/MM/YYYY';
 var dateTimeFormat = 'DD/MM/YYYY hh:mm';
 var useQuotes = false;
 var useQuotesForEmpty = false;
+var filename = null;
 
 // Internal global state
 var OutputFile = 'ReportOutput.csv';
@@ -36,7 +37,7 @@ var async_report_success = 0;
 var global_record_count = 0;
 var global_written_count = 0;
 
-var intervals = ["days", "weeks", "months"];
+var intervals = ["days", "weeks", "months", "hours"];
 var iterations = 0;
 var iterationsComplete = 0;
 var _stringifier = null;
@@ -227,6 +228,7 @@ module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffs
         useQuotesForEmpty = _options.useQuotesForEmpty || useQuotesForEmpty;
         dateFormat = _options.dateFormat || dateFormat;
         dateTimeFormat = _options.dateTimeFormat || dateTimeFormat;
+        filename = _options.filename || filename;
     }
 
     mainCallback = callback;
@@ -239,7 +241,7 @@ module.exports.downloadreport = function (_reportID, _datefield, _indexfieldOffs
     n = 0;
 
 
-    OutputFile = module.exports.downloadreport_file(_reportID, _startDate, _endDate);
+    OutputFile = filename || module.exports.downloadreport_file(_reportID, _startDate, _endDate);
     console.log("Starting here....");
     console.log("Report:" + reportID);
     if (config.OUTPUTTO == "s3") {
