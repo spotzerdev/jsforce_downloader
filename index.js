@@ -37,7 +37,7 @@ var async_report_success = 0;
 var global_record_count = 0;
 var global_written_count = 0;
 
-var intervals = ["days", "weeks", "months", "hours"];
+var intervals = ["days", "weeks", "months"];
 var iterations = 0;
 var iterationsComplete = 0;
 var _stringifier = null;
