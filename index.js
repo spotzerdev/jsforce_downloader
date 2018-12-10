@@ -445,7 +445,7 @@ function prepareCSV(reportID) {
         module.exports.sqlTypes = ["datetime"];
         console.log("Report name: " + module.exports.reportName);
         
-        OutputFile = module.exports.downloadreport_file(module.exports.reportName, StartDate.format('YYYY-MM-DD'), EndDate.format('YYYY-MM-DD'));
+        OutputFile = filename || module.exports.downloadreport_file(module.exports.reportName, StartDate.format('YYYY-MM-DD'), EndDate.format('YYYY-MM-DD'));
 
         result.reportMetadata.detailColumns.map(function (cname) {
             var sqlType = convertSOQLTypeToSQL(result.reportExtendedMetadata.detailColumnInfo[cname].dataType, "varchar(255)");
