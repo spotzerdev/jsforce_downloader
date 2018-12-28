@@ -48,6 +48,9 @@ var config = {
     MAX_CONCURRENT: 10,
     // 30 parallel async report requests
 
+    MAX_RETRIEVAL_ATTEMPTS : 5,
+    // attempt 5 times
+
     WAIT_BETWEEN_REQUESTS: 5000,
     // 1000 milliseconds
 
@@ -574,7 +577,9 @@ function getTempFilename(n, empty) {
 
 function waitForInstance(reportinstance) {
     var waitpromise = Promise.resolve();
+    var retrievalAttempts = 0;
     function checkStatus() {
+        retrievalAttempts++;
         return waitpromise.then(function () {
             return delay(config.WAIT_BETWEEN_REQUESTS)
                 .then(function () {
@@ -583,11 +588,18 @@ function waitForInstance(reportinstance) {
                 .then(function (result) {
                     var status = result.attributes.status;
                     if (status != "Success" && status != "Error") {
-                        return checkStatus();
+                        if (retrievalAttempts <= config.MAX_RETRIEVAL_ATTEMPTS){
+                            return checkStatus();
+                        }
+                        else {
+                            console.error('Max retrieval attempts reached');
+                            throw new Error('Max retrieval attempts reached');
+                        }
                     }
                     return result;
                 }, function (err) {
                     console.error('Cannot retrieve instance status:' + err);
+                    throw new Error('Cannot retrieve instance status:' + err);
                 });
         });
     }
