@@ -497,7 +497,6 @@ function startAsyncReport(startdate, enddate) {
 //
 function processAsyncReportInstanceFn(instances, t, st, end, stringifier, interval) {
     return function (instance) {
-        async_report_success++;
         instances.push(instance); // Can be removed for large report data sets
         var report = conn.analytics.report(reportID);
         var reportinstance = report.instance(instance.id);
@@ -509,6 +508,7 @@ function processAsyncReportInstanceFn(instances, t, st, end, stringifier, interv
                     console.log("Split into smaller chunks")
                     return getReportForDateRange(st, end, intervals[Math.max(intervals.indexOf(interval) -1), 0])
                 }
+                async_report_success++;
                 var message = "";
                 var rSection = results.factMap[config.REPORTSECTION];
                 if (typeof rSection === "undefined" || rSection.rows.length == 0) {
@@ -592,13 +592,11 @@ function waitForInstance(reportinstance) {
                             return checkStatus();
                         }
                         else {
-                            console.error('Max retrieval attempts reached');
                             throw new Error('Max retrieval attempts reached');
                         }
                     }
                     return result;
                 }, function (err) {
-                    console.error('Cannot retrieve instance status:' + err);
                     throw new Error('Cannot retrieve instance status:' + err);
                 });
         });
