@@ -505,8 +505,10 @@ function processAsyncReportInstanceFn(instances, t, st, end, stringifier, interv
             var promise1 = waitForInstance(reportinstance, config.WAIT_BETWEEN_REQUESTS).then(function (results) {
                 if (results.allData == false) {
                     console.error(t + ":Incomplete results for range:" + st.format() + " - " + end.format());
-                    console.log("Split into smaller chunks")
-                    return getReportForDateRange(st, end, intervals[Math.max(intervals.indexOf(interval) -1), 0])
+                    if (intervals.indexOf(interval) > 0){
+                        console.log("Split into smaller chunks")
+                        return getReportForDateRange(st, end, intervals[Math.max(intervals.indexOf(interval) -1), 0])
+                    }
                 }
                 async_report_success++;
                 var message = "";
